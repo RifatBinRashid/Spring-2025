@@ -62,22 +62,26 @@
       translate(width / 2, height / 2);
       scale(1, -1);
 
+      // Draw grid lines
       stroke(200);
       for (let line of gridLines) {
         line(line.start[0] * 20, line.start[1] * 20, line.end[0] * 20, line.end[1] * 20);
       }
 
+      // Draw original vectors
       strokeWeight(2);
       for (let v of vectors) {
         stroke('red');
         line(0, 0, v[0] * 20, v[1] * 20);
       }
 
+      // Draw transformed vectors
       for (let v of transformedVectors) {
         stroke('green');
         line(0, 0, v[0] * 20, v[1] * 20);
       }
 
+      // Animate transformation
       if (isAnimating) {
         animateTransformation();
       }
@@ -89,18 +93,14 @@
         [parseFloat(document.getElementById('a21').value), parseFloat(document.getElementById('a22').value)]
       ];
 
-      transformedVectors = vectors.map(v => [
-        matrix[0][0] * v[0] + matrix[0][1] * v[1],
-        matrix[1][0] * v[0] + matrix[1][1] * v[1]
-      ]);
-
+      // Reset animation state
       isAnimating = true;
       frame = 0;
     }
 
     function animateTransformation() {
       if (frame >= maxFrames) {
-        isAnimating = false;
+        isAnimating = false; // Stop animation when frames are complete
         return;
       }
 
@@ -110,12 +110,13 @@
         [0 * (1 - alpha) + matrix[1][0] * alpha, 1 * (1 - alpha) + matrix[1][1] * alpha]
       ];
 
+      // Apply interpolated matrix to vectors
       transformedVectors = vectors.map(v => [
         interpolatedMatrix[0][0] * v[0] + interpolatedMatrix[0][1] * v[1],
         interpolatedMatrix[1][0] * v[0] + interpolatedMatrix[1][1] * v[1]
       ]);
 
-      frame++;
+      frame++; // Increment frame counter
     }
   </script>
 </body>
