@@ -25,27 +25,46 @@
 
   <script>
     let vectors = [
-      [2, 3],
+      [3, 4],
       [1, -5],
-      [-1, 2]
     ];
     let transformedVectors = [];
     let matrix = [[1, 1], [0, -1]];
+    let gridSize = 8;
+    let gridPoints = [];
+    let gridLines = [];
+    let speed = 50;
+    let frame = 0;
+    let maxFrames = 90;
+    let isAnimating = false;
 
     function setup() {
       createCanvas(500, 500);
       applyMatrix();
+      initializeGrid();
+    }
+
+    function initializeGrid() {
+      for (let i = -gridSize; i <= gridSize; i++) {
+        for (let j = -gridSize; j <= gridSize; j++) {
+          gridPoints.push([i, j]);
+        }
+      }
+
+      for (let i = -gridSize; i <= gridSize; i++) {
+        gridLines.push({ start: [-gridSize, i], end: [gridSize, i] });
+        gridLines.push({ start: [i, -gridSize], end: [i, gridSize] });
+      }
     }
 
     function draw() {
       background(255);
-      translate(width/2, height/2);
+      translate(width / 2, height / 2);
       scale(1, -1);
 
       stroke(200);
-      for (let i = -10; i <= 10; i++) {
-        line(i * 20, -height, i * 20, height);
-        line(-width, i * 20, width, i * 20);
+      for (let line of gridLines) {
+        line(line.start[0] * 20, line.start[1] * 20, line.end[0] * 20, line.end[1] * 20);
       }
 
       strokeWeight(2);
@@ -57,6 +76,10 @@
       for (let v of transformedVectors) {
         stroke('green');
         line(0, 0, v[0] * 20, v[1] * 20);
+      }
+
+      if (isAnimating) {
+        animateTransformation();
       }
     }
 
@@ -70,6 +93,29 @@
         matrix[0][0] * v[0] + matrix[0][1] * v[1],
         matrix[1][0] * v[0] + matrix[1][1] * v[1]
       ]);
+
+      isAnimating = true;
+      frame = 0;
+    }
+
+    function animateTransformation() {
+      if (frame >= maxFrames) {
+        isAnimating = false;
+        return;
+      }
+
+      let alpha = frame / maxFrames;
+      let interpolatedMatrix = [
+        [1 * (1 - alpha) + matrix[0][0] * alpha, 0 * (1 - alpha) + matrix[0][1] * alpha],
+        [0 * (1 - alpha) + matrix[1][0] * alpha, 1 * (1 - alpha) + matrix[1][1] * alpha]
+      ];
+
+      transformedVectors = vectors.map(v => [
+        interpolatedMatrix[0][0] * v[0] + interpolatedMatrix[0][1] * v[1],
+        interpolatedMatrix[1][0] * v[0] + interpolatedMatrix[1][1] * v[1]
+      ]);
+
+      frame++;
     }
   </script>
 </body>
