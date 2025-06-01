@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matrix Transformation Animation</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.js"></script>
+  <style>
+    body { font-family: sans-serif; text-align: center; }
+    canvas { border: 1px solid #ccc; }
+    input { width: 40px; margin: 2px; }
+  </style>
+</head>
+<body>
+  <h2>2x2 Matrix Transformation</h2>
+  <p>Enter your matrix:</p>
+  <div>
+    <input id="a11" type="number" value="1">
+    <input id="a12" type="number" value="1"><br>
+    <input id="a21" type="number" value="0">
+    <input id="a22" type="number" value="-1">
+  </div>
+  <button onclick="applyMatrix()">Apply</button>
+  <p>Red vectors = original | Green vectors = transformed</p>
+
+  <script>
+    let vectors = [
+      [3, 4],
+      [1, -5],
+    ];
+    let transformedVectors = [];
+    let matrix = [[1, 1], [0, -1]];
+    let gridSize = 8;
+    let gridPoints = [];
+    let gridLines = [];
+    let speed = 50;
+    let frame = 0;
+    let maxFrames = 90;
+    let isAnimating = false;
+
+    function setup() {
+      createCanvas(500, 500);
+      applyMatrix();
+      initializeGrid();
+    }
+
+    function initializeGrid() {
+      for (let i = -gridSize; i <= gridSize; i++) {
+        for (let j = -gridSize; j <= gridSize; j++) {
+          gridPoints.push([i, j]);
+        }
+      }
+
+      for (let i = -gridSize; i <= gridSize; i++) {
+        gridLines.push({ start: [-gridSize, i], end: [gridSize, i] });
+        gridLines.push({ start: [i, -gridSize], end: [i, gridSize] });
+      }
+    }
+
+    function draw() {
+      background(255);
+      translate(width / 2, height / 2);
+      scale(1, -1);
+
+      // Draw grid lines
+      stroke(200);
+      for (let line of gridLines) {
+        line(line.start[0] * 20, line.start[1] * 20, line.end[0] * 20, line.end[1] * 20);
+      }
+
+      // Draw original vectors
+      strokeWeight(2);
+      for (let v of vectors) {
+        stroke('red');
+        line(0, 0, v[0] * 20, v[1] * 20);
+      }
+
+      // Draw transformed vectors
+      for (let v of transformedVectors) {
+        stroke('green');
+        line(0, 0, v[0] * 20, v[1] * 20);
+      }
+
+      // Animate transformation
+      if (isAnimating) {
+        animateTransformation();
+      }
+    }
+
+    function applyMatrix() {
+      matrix = [
+        [parseFloat(document.getElementById('a11').value), parseFloat(document.getElementById('a12').value)],
+        [parseFloat(document.getElementById('a21').value), parseFloat(document.getElementById('a22').value)]
+      ];
+
+      // Reset animation state
+      isAnimating = true;
+      frame = 0;
+    }
+
+    function animateTransformation() {
+      if (frame >= maxFrames) {
+        isAnimating = false; // Stop animation when frames are complete
+        return;
+      }
+
+      let alpha = frame / maxFrames;
+      let interpolatedMatrix = [
+        [1 * (1 - alpha) + matrix[0][0] * alpha, 0 * (1 - alpha) + matrix[0][1] * alpha],
+        [0 * (1 - alpha) + matrix[1][0] * alpha, 1 * (1 - alpha) + matrix[1][1] * alpha]
+      ];
+
+      // Apply interpolated matrix to vectors
+      transformedVectors = vectors.map(v => [
+        interpolatedMatrix[0][0] * v[0] + interpolatedMatrix[0][1] * v[1],
+        interpolatedMatrix[1][0] * v[0] + interpolatedMatrix[1][1] * v[1]
+      ]);
+
+      frame++; // Increment frame counter
+    }
+  </script>
+</body>
+</html>
