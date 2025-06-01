@@ -1,0 +1,56 @@
+N = int(input("Enter the size of the symmetric matrix A (N= 4, 10 or 20): "))
+A= []
+def create_symmetric_matrix(N):
+    # Initialize an N×N matrix with zeros
+    A = [[ 0.0 for j in range(N)] for i in range(N)]
+    
+    for i in range (N):
+        for j in range (N):
+            if i == j:
+                A[i][j]= 6
+            elif abs(j-i)== 1:
+                A[i][j]= 1.25
+            elif abs(j-i)== 2:
+                A[i][j]= 1.25
+
+    return A
+
+# Generate A for different N
+A = create_symmetric_matrix(N)
+
+#LU_decomposition function
+def lu_decomposition(matrix):
+    rows = len(matrix)
+    cols = len(matrix[0])
+    
+    # Initialize L as an identity matrix
+    L = [[1.0 if i == j else 0.0 for j in range(rows)] for i in range(rows)]
+    
+    # Initialize U as a copy of the input matrix
+    U = matrix
+    
+    # Perform Gaussian elimination to get U (upper triangular) and L (lower triangular)
+    for i in range(rows):
+        pv = U[i][i]  # Pivot element
+        for k in range(i + 1, rows):
+            mul = U[k][i] / pv  # Multiplier for elimination
+            L[k][i] = mul  # Store the multiplier in L
+            for j in range(cols):
+                U[k][j] = U[k][j] - (mul * U[i][j])  # Update U
+    
+    return L, U
+
+L, U = lu_decomposition(A)
+
+def determinant(matrix):
+    #Compute the determinant of a square matrix using LU decomposition.
+    # Initialize an determinant with one
+    det=1
+    _, U = lu_decomposition(matrix)
+    for i in range(len(U)):
+        det= det*U[i][i]
+
+    return det
+
+det= determinant(A)
+print(det)
